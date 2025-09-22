@@ -2,4 +2,4 @@
 
 ## Description
 
-REST messenger backend with Docker, Swagger, Redis, PostgreSQL, JWT, CORS, Gin, GORM
+My old REST API messenger project with Golang, Gin, GORM, Docker, Swagger, Redis, PostgreSQL, JWT, CORS, WebSocket
