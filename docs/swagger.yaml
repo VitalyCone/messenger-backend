@@ -1,0 +1,585 @@
+definitions:
+  endpoints.errorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  model.ChatResponse:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: integer
+      isGroup:
+        type: boolean
+      lastMessage:
+        $ref: '#/definitions/model.MessageResponse'
+      name:
+        type: string
+      updatedAt:
+        type: string
+      users:
+        items:
+          $ref: '#/definitions/model.UserResponse'
+        type: array
+    type: object
+  model.CreateChatDto:
+    properties:
+      companions_usernames:
+        items:
+          type: string
+        type: array
+      isGroup:
+        type: boolean
+      name:
+        type: string
+    type: object
+  model.CreateMessageDto:
+    properties:
+      chatId:
+        type: integer
+      content:
+        type: string
+    type: object
+  model.CreateUserDto:
+    properties:
+      firstname:
+        maxLength: 50
+        type: string
+      password:
+        maxLength: 32
+        minLength: 3
+        type: string
+      role:
+        description: '"user"/"admin"'
+        enum:
+        - user
+        - admin
+        type: string
+      secondname:
+        maxLength: 50
+        type: string
+      username:
+        maxLength: 32
+        minLength: 3
+        type: string
+    required:
+    - password
+    - role
+    - username
+    type: object
+  model.MessageResponse:
+    properties:
+      chat:
+        $ref: '#/definitions/model.ChatResponse'
+      content:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: integer
+      sender:
+        $ref: '#/definitions/model.UserResponse'
+      updatedAt:
+        type: string
+    type: object
+  model.ModifyChatDto:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      userUsernames:
+        items:
+          type: string
+        type: array
+    type: object
+  model.UserDto:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  model.UserResponse:
+    properties:
+      avatar:
+        items:
+          type: integer
+        type: array
+      balance:
+        type: number
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      firstname:
+        type: string
+      id:
+        type: integer
+      role:
+        type: string
+      secondname:
+        type: string
+      updatedAt:
+        type: string
+      username:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: API for managing users
+  title: Account API
+  version: "1.0"
+paths:
+  /v1/account:
+    get:
+      consumes:
+      - application/json
+      description: Get user data by token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: user responce
+          schema:
+            $ref: '#/definitions/model.UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get user data
+      tags:
+      - User
+  /v1/account/login:
+    post:
+      consumes:
+      - application/json
+      description: Login in api
+      parameters:
+      - description: Login user dt
+        in: body
+        name: userDto
+        required: true
+        schema:
+          $ref: '#/definitions/model.UserDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: token
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+      summary: Login for user
+      tags:
+      - User
+  /v1/account/register:
+    post:
+      consumes:
+      - application/json
+      description: Register in api
+      parameters:
+      - description: Create user dto for register in
+        in: body
+        name: createUserDto
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateUserDto'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: token
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+      summary: Register for user
+      tags:
+      - User
+  /v1/accounts:
+    get:
+      consumes:
+      - application/json
+      description: Get user data by token
+      parameters:
+      - description: username query
+        in: query
+        name: username
+        required: true
+        type: string
+      - description: offset from first responses
+        in: query
+        name: offset
+        type: integer
+      - description: restriction on return of publications
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: users response
+          schema:
+            items:
+              $ref: '#/definitions/model.UserResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get user data
+      tags:
+      - User
+  /v1/chats:
+    get:
+      consumes:
+      - application/json
+      description: Get user data by token
+      parameters:
+      - description: offset of chats
+        in: query
+        name: offset
+        type: integer
+      - description: limit of chats
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: chat response
+          schema:
+            items:
+              $ref: '#/definitions/model.ChatResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get user data
+      tags:
+      - Chats
+    post:
+      consumes:
+      - application/json
+      description: Get user data by token
+      parameters:
+      - description: Create chat dto for register chat
+        in: body
+        name: createChatDto
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateChatDto'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: chat responce
+          schema:
+            $ref: '#/definitions/model.ChatResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get user data
+      tags:
+      - Chats
+  /v1/chats/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get user data by token
+      parameters:
+      - description: chat id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: chat response
+          schema:
+            $ref: '#/definitions/model.ChatResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get user data
+      tags:
+      - Chats
+    patch:
+      consumes:
+      - application/json
+      description: Modify chat data
+      parameters:
+      - description: modify chat dto
+        in: body
+        name: modifyChatDto
+        required: true
+        schema:
+          $ref: '#/definitions/model.ModifyChatDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: chat response
+          schema:
+            $ref: '#/definitions/model.ChatResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Modify chat data
+      tags:
+      - Chats
+  /v1/chats/{id}/messages:
+    get:
+      consumes:
+      - application/json
+      description: Get user data by token
+      parameters:
+      - description: chat id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: limit
+        in: query
+        name: limit
+        type: integer
+      - description: offest
+        in: query
+        name: offest
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: messages responsee
+          schema:
+            items:
+              $ref: '#/definitions/model.MessageResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get user data
+      tags:
+      - Messages
+      - Chats
+  /v1/messages:
+    post:
+      consumes:
+      - application/json
+      description: Get user data by token
+      parameters:
+      - description: Create message dto
+        in: body
+        name: createMessageDto
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateMessageDto'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: message response
+          schema:
+            $ref: '#/definitions/model.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/endpoints.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get user data
+      tags:
+      - Messages
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: token
+    type: apiKey
+swagger: "2.0"

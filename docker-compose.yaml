@@ -1,0 +1,87 @@
+version: "3.8"
+
+services: 
+  msngr-backend:
+    build: ./
+    ports:
+      - 8080:8080
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      DB_USER: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_DB: ${DB_NAME}
+    volumes:
+      - .:/cmd
+      - .:/config
+      - .:/internal
+    # secrets:
+    #   - db_username
+    #   - db_name
+    #   - db_password
+    networks: 
+      # - kzcv-network
+      - default
+
+
+  db:
+    image: postgres:latest
+    healthcheck:
+      test: pg_isready -U $DB_USERNAME -d $DB_NAME
+      interval: 3s
+      retries: 15
+      start_period: 5s
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - ./data:/var/lib/postgresql/data/ #./.database/postgres/data:/var/lib/postgersql/data
+    ports:
+      - 5433:5432
+    # secrets:
+    #   - db_username
+    #   - db_name
+    #   - db_password
+    networks: 
+      - default
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - 6379:6379
+    volumes:
+      - ./redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+    networks:
+      - default
+
+name: msngr-backend-image
+
+# networks:
+#   kzcv-network:
+#     external: true
+
+# secrets:
+#   db_username:
+#     environment: DB_USERNAME
+#   db_password:
+#     environment: DB_PASSWORD
+#   db_name:
+#     environment: DB_NAME
